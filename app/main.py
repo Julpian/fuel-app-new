@@ -279,8 +279,8 @@ def add_record():
         else:
             flash(
                 f"Data untuk unit {no_unit} berhasil disimpan! "
-                f"Buffer Stock: <span class='text-yellow-400'>{record['Buffer_Stock']:.2f}</span> | "
-                f"Literan: <span class='text-yellow-400'>{record['LITERAN']:.2f}</span>",
+                f"Buffer Stock: <span style='color:#facc15;font-weight:bold'>{record['Buffer_Stock']:.2f}</span> | "
+                f"Literan: <span style='color:#facc15;font-weight:bold'>{record['LITERAN']:.2f}</span>",
                 'success'
             )
         return redirect(url_for('index', unit=no_unit))

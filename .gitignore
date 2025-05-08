@@ -1,1 +1,1 @@
-venv/ pycache/ *.pyc .env backup_fuel_data.csv
+venv/ pycache/ *.pyc .env backup_fuel_data.csv .venv
