@@ -29,8 +29,8 @@ mainfont: Arial
 2. **Riwayat Data**: Tabel dengan kolom `Date`, `Unit`, `HM Awal`, `HM Akhir`, `Selisih`, `Literan`, `Penjatahan`, `Max Capacity`, `Buffer Stock`, filter unit, pagination.
 3. **Ekspor Data**: Ekspor semua/unit ke Excel (CSV).
 4. **Laporan PDF**: Buat PDF berdasarkan tanggal dan shift (1/2).
-5. **Reset Data**: Hapus semua data, cadangan otomatis.
-6. **Data Permanen**: Kelola `PENJATAHAN` dan `Max_Capacity` via Supabase.
+5. **Reset Data**: Hapus semua data.
+6. **Data Permanen**: Kelola `PENJATAHAN` dan `Max_Capacity` via code di app.main.
 7. **Desain UX**: Dark mode, tombol gradasi (biru, hijau, ungu, merah), responsif.
 
 ## 3. Cara Penggunaan
@@ -51,7 +51,7 @@ mainfont: Arial
    - Klik **Simpan** (tombol biru, ikon disket).
 3. Notifikasi:
    - Hijau: "Data berhasil disimpan!"
-   - Merah: "Error, periksa input."
+   - Merah: "HM Akhir (-) harus lebih besar dari HM Awal (-)!."
 4. Data muncul di **Data Historis**.
 
 ### 3.3 Melihat Riwayat Data
@@ -79,24 +79,8 @@ mainfont: Arial
 
 ### 3.6 Mereset Data
 1. **Sidebar (Reset)**:
-   - Baca: "Hapus semua data, backup dibuat."
+   - Baca: "Hapus semua data"
    - Klik **Reset** (tombol merah, ikon sampah).
    - Konfirmasi: "Yakin hapus semua data?"
-2. Data dihapus, cadangan CSV dibuat.
+2. Data dihapus.
 3. Notifikasi: "Data direset, backup tersimpan."
-
-### 3.7 Mengelola Data Permanen (Supabase)
-1. **Akses Supabase**:
-   - Login: [https://app.supabase.com/](https://app.supabase.com/).
-   - Buka tabel `fuel_records`.
-2. **Hapus Data Lama**:
-   - SQL: `TRUNCATE TABLE fuel_records CASCADE;`
-   - Dashboard: Pilih semua baris, klik **Delete Selected Rows**.
-   - Verifikasi: `SELECT COUNT(*) FROM fuel_records;` (harus `0`).
-3. **Masukkan Data Baru** (contoh):
-   ```sql
-   INSERT INTO fuel_records (Date, "NO_UNIT", HM_AWAL, PENJATAHAN, Max_Capacity, is_new)
-   VALUES
-   ('2025-05-12', 'DR0011', 100.0, 65, 3000.0, FALSE),
-   ('2025-05-12', 'DZ3007', 200.0, 60, 0.0, FALSE),
-   ('2025-05-12', 'LD0152', 25.0, 12, 300.0, FALSE);
