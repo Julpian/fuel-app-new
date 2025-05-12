@@ -65,7 +65,7 @@ INITIAL_HM_AWAL = {
     "DZ3007": 10, "DZ3014": 10, "DZ3026": 10,
     "EX1022": 20,
     "EX2017": 30, "EX2027": 30, "EX2032": 30 , "EX2033": 30, "EX2040": 30, 
-    "EX3009": 40
+    "EX3009": 2000
 }
 
 # Fungsi data menggunakan Supabase API
