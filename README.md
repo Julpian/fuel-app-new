@@ -15,13 +15,13 @@ mainfont: Arial
 - Entri data harian (tanggal, HM akhir, unit).
 - Tampilan riwayat data dengan filter unit.
 - Ekspor data ke Excel atau PDF.
-- Pengaturan data permanen (`PENJATAHAN`, `Max_Capacity`) di Supabase.
-- Reset data dengan cadangan otomatis.
+- Pengaturan data permanen (`PENJATAHAN`, `Max_Capacity`) di Code app.main.
+- Reset data.
 
 **Spesifikasi**:
 - **URL**: [https://fuel-app-new-p3bc.vercel.app/](https://fuel-app-new-p3bc.vercel.app/)
-- **Database**: Supabase, tabel `fuel_records` (kolom: `Date`, `"NO_UNIT"`, `HM_AWAL`, `PENJATAHAN`, `Max_Capacity`, `is_new`).
-- **Unit**: 21 kendaraan (contoh: `DR0011`, `DZ3007`, `LD0152`).
+- **Database**: Supabase, tabel `fuel_records` (kolom: `Date`, `"NO_UNIT"`, `HM_AWAL`, `HM_AKHIR`, `SELISIH`, `LITERAN`,  `PENJATAHAN`, `Max_Capacity`, `Buffer_Stock`, `is_new`).
+- **Unit**: - .
 - **Desain**: Minimalis, responsif (HP, tablet, laptop), dark mode, tombol gradasi, pagination (10 entri), notifikasi toast.
 
 ## 2. Fitur Utama
