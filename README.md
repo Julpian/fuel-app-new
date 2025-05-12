@@ -5,6 +5,11 @@ date: 12 Mei 2025
 geometry: margin=2cm
 fontsize: 12pt
 mainfont: Arial
+header-includes: |
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhead[L]{Fuel Entry App}
+  \fancyfoot[C]{\thepage}
 ---
 
 # Dokumentasi Penggunaan Aplikasi Fuel Entry App
