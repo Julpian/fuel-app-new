@@ -184,7 +184,7 @@ def create_pdf_report(df, shift, date):
 
     styles = getSampleStyleSheet()
     title = Paragraph(
-        f"PLAN REFUELING UNIT HAULER OB PERIODE {date.strftime('%b %Y').upper()}"
+        f"PLAN REFUELING UNIT TRACK {date.strftime('%b %Y').upper()}"
         f"<br/>Shift: {shift} Tgl: {date.strftime('%d %b %Y')}",
         styles['Title']
     )
