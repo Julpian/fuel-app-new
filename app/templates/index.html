@@ -320,14 +320,15 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>Unit</th>
-                                    <th>HM Awal</th>
-                                    <th>HM Akhir</th>
+                                    <th>NO_UNIT</th>
+                                    <th>shift</th>
+                                    <th>HM_Awal</th>
+                                    <th>HM_Akhir</th>
                                     <th>Selisih</th>
                                     <th>Literan</th>
                                     <th>Penjatahan</th>
-                                    <th>Max Capacity</th>
-                                    <th>Buffer Stock</th>
+                                    <th>Max_Capacity</th>
+                                    <th>Buffer_Stock</th>
                                 </tr>
                             </thead>
                             <tbody id="historical-body">
@@ -335,11 +336,12 @@
                                     <tr class="{% if row.is_new %}new{% endif %}">
                                         <td>{{ row.Date }}</td>
                                         <td>{{ row.NO_UNIT }}</td>
-                                        <td>{{ row.HM_AWAL | round(2) }}</td>
-                                        <td>{{ row.HM_AKHIR | round(2) }}</td>
-                                        <td>{{ row.SELISIH | round(2) }}</td>
-                                        <td>{{ row.LITERAN | round(2) }}</td>
-                                        <td>{{ row.PENJATAHAN }}</td>
+                                        <td>{{ row.shift }}</td>
+                                        <td>{{ row.HM_Awal | round(2) }}</td>
+                                        <td>{{ row.HM_Akhir | round(2) }}</td>
+                                        <td>{{ row.Selisih | round(2) }}</td>
+                                        <td>{{ row.Literan | round(2) }}</td>
+                                        <td>{{ row.Penjatahan }}</td>
                                         <td>{{ row.Max_Capacity | round(2) }}</td>
                                         <td>{{ row.Buffer_Stock | round(2) }}</td>
                                     </tr>
@@ -380,9 +382,9 @@
                         </div>
                         <div>
                             <label>Shift</label>
-                            <select name="shift">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
+                            <select name="shift" required>
+                                <option value="Shift 1">Shift 1 (06:00–18:00)</option>
+                                <option value="Shift 2">Shift 2 (18:00–06:00)</option>
                             </select>
                         </div>
                         <button type="submit" class="btn-pdf"><i class="fas fa-file-pdf mr-1"></i>Buat PDF</button>
