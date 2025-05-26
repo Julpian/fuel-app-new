@@ -8,6 +8,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from datetime import datetime, time
+import pytz
 import logging
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -23,10 +24,18 @@ load_dotenv()
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'supersecretkey')
 
+# Validate timezone
+timezone_str = os.environ.get('APP_TIMEZONE', 'Asia/Makassar')  # Default ke WITA
+try:
+    pytz.timezone(timezone_str)
+except pytz.exceptions.UnknownTimeZoneError:
+    logger.error(f"Invalid timezone: {timezone_str}")
+    raise ValueError(f"Invalid timezone: {timezone_str}")
+
 # Custom strftime filter
 def format_datetime(value, format='%Y-%m-%d'):
     if value == 'now':
-        return datetime.now().strftime(format)
+        return datetime.now(pytz.timezone(os.environ.get('APP_TIMEZONE', 'Asia/Makassar'))).strftime(format)
     return value.strftime(format)
 
 app.jinja_env.filters['strftime'] = format_datetime
@@ -62,20 +71,31 @@ MAX_CAPACITY_MAP = {
     "EX3009": 3400
 }
 INITIAL_HM_Awal = {
-    "DZ3007": 45298, "DZ3014": 45932, "DZ3026": 20118,
+    "DZ3007": 45316, "DZ3014": 45955, "DZ3026": 20140,
     "EX1022": 34288,
-    "EX2017": 45729, "EX2027": 35087, "EX2032": 26693, "EX2033": 25826, "EX2040": 18588,
-    "EX3009": 35523
+    "EX2017": 45755, "EX2027": 35087, "EX2032": 26716, "EX2033": 25852, "EX2040": 18614,
+    "EX3009": 35546
 }
 
-# Function to determine shift based on current time
-def determine_shift():
-    current_time = datetime.now().time()
-    if time(6, 0) <= current_time < time(18, 0):
-        return "Shift 1"
-    return "Shift 2"
+def determine_shift(time_str=None, timezone_str="Asia/Makassar"):
+    try:
+        tz = pytz.timezone(timezone_str)
+        if time_str:
+            time_obj = datetime.strptime(time_str, "%H:%M").time()
+            logger.info(f"Parsed input time: {time_str}, Timezone: {timezone_str}")
+        else:
+            time_obj = datetime.now(tz).time()
+            logger.info(f"Using current time: {time_obj}, Timezone: {timezone_str}")
+        
+        start_shift1 = time(6, 0)
+        end_shift1 = time(18, 0)
+        shift = "Shift 1" if start_shift1 <= time_obj < end_shift1 else "Shift 2"
+        logger.info(f"Determined shift: {shift} for time {time_obj}")
+        return shift
+    except Exception as e:
+        logger.error(f"Error determining shift: {str(e)}")
+        return "Shift 2"
 
-# Data functions using Supabase API
 def load_or_create_data():
     try:
         response = supabase.table('fuel_records').select('*').execute()
@@ -121,7 +141,7 @@ def save_data(df):
                 "Max_Capacity": float(row["Max_Capacity"]),
                 "Buffer_Stock": float(row["Buffer_Stock"]),
                 "is_new": bool(row["is_new"]),
-                "shift": str(row["shift"]) if row["shift"] else None  # Handle empty shift as NULL
+                "shift": str(row.get("shift", "Unknown")).strip()
             }
             supabase.table('fuel_records').insert(record).execute()
     except Exception as e:
@@ -152,12 +172,13 @@ def get_penjatahan(no_unit):
 def get_max_capacity(no_unit):
     return MAX_CAPACITY_MAP.get(no_unit, 0)
 
-def add_new_record(no_unit, hm_akhir, date):
+def add_new_record(no_unit, hm_akhir, date, time_str=None):
     df = load_or_create_data()
     hm_awal = get_hm_awal(df, no_unit)
     penjatahan = get_penjatahan(no_unit)
     max_capacity = get_max_capacity(no_unit)
-    shift = determine_shift()
+    timezone_str = os.environ.get('APP_TIMEZONE', 'Asia/Makassar')
+    shift = determine_shift(time_str, timezone_str)
 
     if hm_akhir <= hm_awal:
         return df, None, f"HM Akhir ({hm_akhir}) harus lebih besar dari HM Awal ({hm_awal})!"
@@ -181,7 +202,6 @@ def add_new_record(no_unit, hm_akhir, date):
         "shift": shift
     }
 
-    # Ensure DataFrame has all columns before concatenation
     if "shift" not in df.columns:
         df["shift"] = ""
     df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
@@ -194,7 +214,7 @@ def create_pdf_report(df, shift, date):
     elements = []
 
     styles = getSampleStyleSheet()
-    shift_display = "Shift 1 (06:00–18:00)" if shift == "Shift 1" else "Shift 2 (18:00–06:00)"
+    shift_display = "Shift 1 (06:00–18:00 WITA)" if shift == "Shift 1" else "Shift 2 (18:00–06:00 WITA)"
     title = Paragraph(
         f"PLAN REFUELING UNIT TRACK {date.strftime('%b %Y').upper()}"
         f"<br/>{shift_display} Tgl: {date.strftime('%d %b %Y')}",
@@ -206,7 +226,7 @@ def create_pdf_report(df, shift, date):
     data = [["Date", "Unit", "Shift", "Est HM Jam 12:00", "HM", "Qty Plan Refueling", "Note"]]
     for _, row in df.iterrows():
         qty_plan = f"{row['Literan']:.2f}" if row['Literan'] > 0 else "Full" if row['Buffer_Stock'] <= 0 else "-"
-        shift_value = row.get("shift", "")  # Handle missing shift
+        shift_value = row.get("shift", "Unknown")
         data.append([
             row["Date"],
             row["NO_UNIT"],
@@ -275,8 +295,9 @@ def add_record():
         no_unit = request.form['no_unit'].strip()
         hm_akhir = float(request.form['hm_akhir'])
         date = datetime.strptime(request.form['date'], '%Y-%m-%d')
+        time_str = request.form.get('time')
 
-        df, record, error = add_new_record(no_unit, hm_akhir, date)
+        df, record, error = add_new_record(no_unit, hm_akhir, date, time_str)
         if error:
             flash(error, 'error')
         else:
@@ -333,7 +354,6 @@ def generate_pdf():
             return redirect(url_for('index'))
 
         df = load_or_create_data()
-        # Ensure shift column exists
         if "shift" not in df.columns:
             df["shift"] = ""
         report_df = df[(df["Date"] == report_date.strftime("%Y-%m-%d")) & (df["shift"] == shift)]
