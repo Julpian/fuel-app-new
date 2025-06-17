@@ -73,8 +73,8 @@ MAX_CAPACITY_MAP = {
 INITIAL_HM_Awal = {
     "DZ3007": 45324, "DZ3014": 45964, "DZ3026": 20151,
     "EX1022": 34317,
-    "EX2017": 45860, "EX2027": 35209, "EX2032": 26824, "EX2033": 25980, "EX2040": 18738,
-    "EX3009": 35680
+    "EX2017": 46028, "EX2027": 35373, "EX2032": 27023, "EX2033": 26172, "EX2040": 18948,
+    "EX3009": 35880
 }
 
 def determine_shift(time_str=None, timezone_str="Asia/Makassar"):
